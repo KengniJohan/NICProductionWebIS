@@ -1,0 +1,13 @@
+﻿@model byte[]
+
+@if (Model != null && Model.Length > 0)
+{
+    string base64 = Convert.ToBase64String(Model);
+    string imgSrc = $"data:image/png;base64,{base64}";
+
+    <img src="@imgSrc" style="width:120px;height:auto;border-radius:5px;border:1px solid #ccc;" />
+}
+else
+{
+    <span>Aucune photo</span>
+}

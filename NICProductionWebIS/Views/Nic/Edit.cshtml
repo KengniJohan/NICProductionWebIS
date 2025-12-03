@@ -1,0 +1,82 @@
+﻿@model NICProductionWebIS.Models.NicModel
+
+@{
+    ViewData["Title"] = "Modifier";
+}
+
+<h2>Modifier la Carte</h2>
+
+<form asp-action="Edit" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input asp-for="IssueDate" class="form-control" type="hidden" />
+    <input asp-for="ExpiredDate" class="form-control" type="hidden" />
+
+    <div class="form-group">
+        <label>Nom</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Prénom</label>
+        <input asp-for="Surname" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Nom du père</label>
+        <input asp-for="FatherName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Nom de la mère</label>
+        <input asp-for="MotherName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Taille</label>
+        <input asp-for="Height" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Lieu de naissance</label>
+        <input asp-for="BornPlace" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Date de naissance</label>
+        <input asp-for="BornDate" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label>Profession</label>
+        <input asp-for="Profession" class="form-control" />
+    </div>
+
+    @* <div class="form-group">
+        <label>Date d’émission</label>
+        <input asp-for="IssueDate" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label>Date d’expiration</label>
+        <input asp-for="ExpiredDate"  class="form-control" type="date" />
+    </div> *@
+
+    <div class="form-group">
+        <label>Genre</label>
+        <select asp-for="Gender" class="form-control"
+                asp-items="@(ViewBag.Genders)">
+        </select>
+        <span asp-validation-for="Gender" class="text-danger"></span>
+    </div>
+
+    <h5>Photo actuelle :</h5>
+    @await Html.PartialAsync("_PhotoPreview", Model.Photo)
+
+    <div class="form-group mt-3">
+        <label>Nouvelle photo (optionnel)</label>
+        <input type="file" name="PhotoFile" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-warning mt-3">Enregistrer</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Retour</a>
+</form>

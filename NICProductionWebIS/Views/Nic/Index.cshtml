@@ -1,0 +1,44 @@
+﻿@model IEnumerable<NICProductionWebIS.Models.NicModel>
+
+@{
+    ViewData["Title"] = "Liste des Cartes d'Identité";
+}
+
+<h2>Liste des Cartes d'Identité</h2>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Créer une nouvelle carte</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Date de naissance</th>
+            <th>Profession</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @await Html.PartialAsync("_PhotoPreview", item.Photo)
+                </td>
+                <td>@item.Name</td>
+                <td>@item.Surname</td>
+                <td>@item.BornDate.ToString("dd/MM/yyyy")</td>
+                <td>@item.Profession</td>
+                <td>
+                    <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id">Détails</a>
+                    <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id">Modifier</a>
+                    <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Supprimer</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

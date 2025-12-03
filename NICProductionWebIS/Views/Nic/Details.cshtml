@@ -1,0 +1,63 @@
+﻿@model NICProductionWebIS.Models.NicModel
+
+@{
+    ViewData["Title"] = "Détails";
+}
+
+<h2>Détails de la Carte d'Identité</h2>
+
+<div class="card" style="padding:20px">
+    <div>
+        <strong>Nom :</strong> @Model.Name
+    </div>
+
+    <div>
+        <strong>Prénom :</strong> @Model.Surname
+    </div>
+
+    <div>
+        <strong>Père :</strong> @Model.FatherName
+    </div>
+
+    <div>
+        <strong>Mère :</strong> @Model.MotherName
+    </div>
+
+    <div>
+        <strong>Taille :</strong> @Model.Height cm
+    </div>
+
+    <div>
+        <strong>Lieu de naissance :</strong> @Model.BornPlace
+    </div>
+
+    <div>
+        <strong>Date de naissance :</strong> @Model.BornDate.ToString("dd/MM/yyyy")
+    </div>
+
+    <div>
+        <strong>Profession :</strong> @Model.Profession
+    </div>
+
+    <div>
+        <strong>Date d’émission :</strong> @Model.IssueDate.ToString("dd/MM/yyyy")
+    </div>
+
+    <div>
+        <strong>Date d’expiration :</strong> @Model.ExpiredDate.ToString("dd/MM/yyyy")
+    </div>
+
+    <div>
+        <strong>Genre :</strong> @Model.Gender
+    </div>
+
+    <div class="mt-3">
+        <strong>Photo :</strong><br />
+        @await Html.PartialAsync("_PhotoPreview", Model.Photo)
+    </div>
+
+    <p class="mt-3">
+        <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Modifier</a>
+        <a class="btn btn-secondary" asp-action="Index">Retour</a>
+    </p>
+</div>
