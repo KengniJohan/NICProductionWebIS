@@ -1,0 +1,157 @@
+﻿@* Shared delete confirmation modal.
+   Intercepts forms with class="delete-form" and shows a Bootstrap modal.
+   The form should include data-name="..." (optional) to show contextual message. *@
+
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmMessage">Voulez‑vous vraiment supprimer cet élément ?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="deleteConfirmCancel" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button id="deleteConfirmBtn" type="button" class="btn btn-danger">Supprimer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            let pendingForm = null;
+            const modalEl = document.getElementById('deleteConfirmModal');
+            if (!modalEl) return;
+            const modal = new bootstrap.Modal(modalEl);
+
+            function openDeleteModalForForm(form) {
+                pendingForm = form;
+                const name = form.dataset && form.dataset.name ? form.dataset.name : '';
+                const messageEl = document.getElementById('deleteConfirmMessage');
+                messageEl.textContent = name
+                    ? `Confirmer la suppression de "${name}" ?`
+                    : 'Voulez‑vous vraiment supprimer cet élément ?';
+                modal.show();
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // intercept submit on forms with class "delete-form"
+                document.querySelectorAll('form.delete-form').forEach(function (form) {
+                    // if already bound, skip
+                    if (form.dataset.deleteIntercepted === 'true') return;
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        openDeleteModalForForm(form);
+                    });
+                    form.dataset.deleteIntercepted = 'true';
+                });
+
+                // also handle delete links/buttons that may have data-delete-form attribute (optional)
+                document.querySelectorAll('[data-delete-form]').forEach(function (el) {
+                    el.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const selector = el.getAttribute('data-delete-form');
+                        const form = document.querySelector(selector);
+                        if (form) {
+                            openDeleteModalForForm(form);
+                        }
+                    });
+                });
+
+                document.getElementById('deleteConfirmBtn').addEventListener('click', function () {
+                    if (!pendingForm) { modal.hide(); return; }
+                    // submit the stored form (will include antiforgery token)
+                    pendingForm.submit();
+                    pendingForm = null;
+                });
+
+                // clear pendingForm when modal hidden
+                modalEl.addEventListener('hidden.bs.modal', function () {
+                    pendingForm = null;
+                });
+            });
+        })();
+    </script>
+}@* Shared delete confirmation modal.
+   Intercepts forms with class="delete-form" and shows a Bootstrap modal.
+   The form should include data-name="..." (optional) to show contextual message. *@
+
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmMessage">Voulez‑vous vraiment supprimer cet élément ?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="deleteConfirmCancel" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button id="deleteConfirmBtn" type="button" class="btn btn-danger">Supprimer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            let pendingForm = null;
+            const modalEl = document.getElementById('deleteConfirmModal');
+            if (!modalEl) return;
+            const modal = new bootstrap.Modal(modalEl);
+
+            function openDeleteModalForForm(form) {
+                pendingForm = form;
+                const name = form.dataset && form.dataset.name ? form.dataset.name : '';
+                const messageEl = document.getElementById('deleteConfirmMessage');
+                messageEl.textContent = name
+                    ? `Confirmer la suppression de "${name}" ?`
+                    : 'Voulez‑vous vraiment supprimer cet élément ?';
+                modal.show();
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // intercept submit on forms with class "delete-form"
+                document.querySelectorAll('form.delete-form').forEach(function (form) {
+                    // if already bound, skip
+                    if (form.dataset.deleteIntercepted === 'true') return;
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        openDeleteModalForForm(form);
+                    });
+                    form.dataset.deleteIntercepted = 'true';
+                });
+
+                // also handle delete links/buttons that may have data-delete-form attribute (optional)
+                document.querySelectorAll('[data-delete-form]').forEach(function (el) {
+                    el.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const selector = el.getAttribute('data-delete-form');
+                        const form = document.querySelector(selector);
+                        if (form) {
+                            openDeleteModalForForm(form);
+                        }
+                    });
+                });
+
+                document.getElementById('deleteConfirmBtn').addEventListener('click', function () {
+                    if (!pendingForm) { modal.hide(); return; }
+                    // submit the stored form (will include antiforgery token)
+                    pendingForm.submit();
+                    pendingForm = null;
+                });
+
+                // clear pendingForm when modal hidden
+                modalEl.addEventListener('hidden.bs.modal', function () {
+                    pendingForm = null;
+                });
+            });
+        })();
+    </script>
+}

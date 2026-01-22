@@ -1,44 +1,125 @@
-﻿@model IEnumerable<NICProductionWebIS.Models.NicModel>
+﻿@model NICProductionWebIS.Models.NicIndexViewModel
 
 @{
     ViewData["Title"] = "Liste des Cartes d'Identité";
 }
 
-<h2>Liste des Cartes d'Identité</h2>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Cartes d'Identité</h2>
+        <a class="btn btn-primary d-flex align-items-center" asp-action="Create" role="button" title="Créer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg me-2" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 1a.5.5 0 0 1 .5.5V7.5H14a.5.5 0 0 1 0 1H8.5V14a.5.5 0 0 1-1 0V8.5H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
+            </svg>
+            <span>Ajouter</span>
+        </a>
+    </div>
 
-<p>
-    <a class="btn btn-primary" asp-action="Create">Créer une nouvelle carte</a>
-</p>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-sm-6">
+            <input name="q" value="@Model.Query" class="form-control" placeholder="Recherche (nom, prénom, profession)" />
+        </div>
+        <div class="col-sm-2">
+            <select name="pageSize" class="form-select" onchange="this.form.submit()">
+                <option value="5" selected="@(Model.PageSize==5)">5</option>
+                <option value="10" selected="@(Model.PageSize==10)">10</option>
+                <option value="25" selected="@(Model.PageSize==25)">25</option>
+                <option value="50" selected="@(Model.PageSize==50)">50</option>
+            </select>
+        </div>
+        <div class="col-sm-2">
+            <button type="submit" class="btn btn-outline-primary">Appliquer</button>
+        </div>
+    </form>
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Photo</th>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Date de naissance</th>
-            <th>Profession</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var item in Model)
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        @foreach (var item in Model.Items)
         {
-            <tr>
-                <td>
-                    @await Html.PartialAsync("_PhotoPreview", item.Photo)
-                </td>
-                <td>@item.Name</td>
-                <td>@item.Surname</td>
-                <td>@item.BornDate.ToString("dd/MM/yyyy")</td>
-                <td>@item.Profession</td>
-                <td>
-                    <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id">Détails</a>
-                    <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id">Modifier</a>
-                    <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Supprimer</a>
-                </td>
-            </tr>
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="row g-0">
+                        <div class="col-auto p-3 d-flex align-items-center">
+                            @if (item.Photo != null && item.Photo.Length > 0)
+                            {
+                                var base64 = Convert.ToBase64String(item.Photo);
+                                var src = $"data:image/png;base64,{base64}";
+                                <img src="@src"
+                                     class="rounded photo-thumb clickable-photo"
+                                     style="width:96px;height:96px;object-fit:cover;"
+                                     alt="Photo de @item.Name @item.Surname"
+                                     data-src="@src"
+                                     data-name="@item.Name @item.Surname" />
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:96px;height:96px;">
+                                    <small class="text-muted">No photo</small>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">@item.Name @item.Surname</h5>
+                                <p class="card-text mb-1"><small class="text-muted">@item.Profession</small></p>
+                                <p class="card-text mb-2"><small class="text-muted">Né le @item.BornDate.ToString("dd/MM/yyyy")</small></p>
+
+                                <div class="d-flex gap-2">
+                                    <a class="btn btn-outline-info btn-sm btn-icon" asp-action="Details" asp-route-id="@item.Id" title="Détails" aria-label="Détails">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8z"/>
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/>
+                                        </svg>
+                                        <span class="visually-hidden">Détails</span>
+                                    </a>
+
+                                    <a class="btn btn-outline-warning btn-sm btn-icon" asp-action="Edit" asp-route-id="@item.Id" title="Modifier" aria-label="Modifier">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-9.193 9.193-3.182.846a.25.25 0 0 1-.316-.316l.846-3.182 9.193-9.193z"/>
+                                        </svg>
+                                        <span class="visually-hidden">Modifier</span>
+                                    </a>
+
+                                    @* Delete form uses class "delete-form" and provides data-name for contextual message *@
+                                    <form method="post" asp-action="Delete" asp-route-id="@item.Id" class="m-0 p-0 d-inline delete-form" data-name="@($"{item.Name} {item.Surname}")">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm btn-icon" title="Supprimer" aria-label="Supprimer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16" aria-hidden="true">
+                                                <path d="M5.5 5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-1 0zM8 5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-1 0zM10.5 5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-1 0z"/>
+                                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9.5A1.5 1.5 0 0 1 11.5 15H4.5A1.5 1.5 0 0 1 3 13.5V4H2.5a1 1 0 0 1 0-2H5l.5-.5h5L11 2h2.5a1 1 0 0 1 1 1zM5 2.5V3h6v-.5H5z"/>
+                                            </svg>
+                                            <span class="visually-hidden">Supprimer</span>
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+
+    <nav class="mt-4" aria-label="Pagination">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.Page-1)" asp-route-pageSize="@Model.PageSize" asp-route-q="@Model.Query">Précédent</a>
+            </li>
+
+            @for (var p = 1; p <= Model.TotalPages; p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-pageSize="@Model.PageSize" asp-route-q="@Model.Query">@p</a>
+                </li>
+            }
+
+            <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.Page+1)" asp-route-pageSize="@Model.PageSize" asp-route-q="@Model.Query">Suivant</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+@* include shared image modal and delete confirmation modal *@
+@await Html.PartialAsync("_ImagePreviewModal")
+@await Html.PartialAsync("_DeleteConfirmModal")

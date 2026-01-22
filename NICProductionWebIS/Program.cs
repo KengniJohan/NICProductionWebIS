@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NICProductionWebIS.Data;
+using NICProductionWebIS.Repositories;
+using NICProductionWebIS.Repositories.Impl;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,8 @@ builder.Services.AddControllersWithViews();
 // DbContext avec Npgsql
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddTransient<NicRepository, NicRepositoryImpl>();
 
 var app = builder.Build();
 

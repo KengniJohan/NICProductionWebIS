@@ -3,24 +3,55 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NICProductionWebIS.Data;
 using NICProductionWebIS.Models;
+using NICProductionWebIS.Repositories;
 using System.Diagnostics;
+using System.Linq;
 
 namespace NICProductionWebIS.Controllers
 {
-    public class NicController : Controller
+    public class NicController(ApplicationDbContext context, NicRepository repository) : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public NicController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly NicRepository _repository = repository;
 
         // GET: Nic
-        public async Task<IActionResult> Index()
+        // Adds pagination and optional search query
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? q = null)
         {
-            var list = await _context.NicTable.ToListAsync();
-            return View(list);
+            if (page < 1) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var query = _context.NicTable.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var normalized = q.Trim().ToLower();
+                query = query.Where(n =>
+                    n.Name.ToLower().Contains(normalized) ||
+                    n.Surname.ToLower().Contains(normalized) ||
+                    n.Profession.ToLower().Contains(normalized));
+            }
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var items = await query
+                .OrderBy(n => n.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var vm = new NicIndexViewModel
+            {
+                Items = items,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                Query = q
+            };
+
+            return View(vm);
         }
 
         // GET: Nic/Details/5
@@ -52,17 +83,11 @@ namespace NICProductionWebIS.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(NicModel model, IFormFile? photoFile)
         {
-            if (photoFile != null && photoFile.Length > 0)
-            {
-                using var ms = new MemoryStream();
-                await photoFile.CopyToAsync(ms);
-                model.Photo = ms.ToArray();
-            }
+            model.Photo = await _repository.FromImage(photoFile);
 
             if (ModelState.IsValid)
             {
                 model.ExpiredDate = model.IssueDate.AddYears(10);
-                Console.WriteLine("ACCeptation :" + model.Name);
                 _context.Add(model);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -96,25 +121,28 @@ namespace NICProductionWebIS.Controllers
         {
             if (id != model.Id) return NotFound();
 
-            if (photoFile != null && photoFile.Length > 0)
-            {
-                using var ms = new MemoryStream();
-                await photoFile.CopyToAsync(ms);
-                model.Photo = ms.ToArray();
-            }
-            else if (removePhoto)
+            // Fetch existing for preservation when no new photo is uploaded
+            var existing = await _context.NicTable.AsNoTracking().FirstOrDefaultAsync(n => n.Id == id);
+            if (existing == null) return NotFound();
+
+            if (removePhoto)
             {
                 model.Photo = null;
             }
+            else if (photoFile != null && photoFile.Length > 0)
+            {
+                // Use uploaded image
+                model.Photo = await _repository.FromImage(photoFile);
+            }
             else
             {
-                // preserve existing photo if none uploaded — fetch existing bytes
-                var existing = await _context.NicTable.AsNoTracking().FirstOrDefaultAsync(n => n.Id == id);
-                if (existing != null)
-                {
-                    model.Photo = existing.Photo;
-                }
+                // Preserve existing photo when no upload and not removing
+                model.Photo = existing.Photo;
             }
+
+            // Preserve IssueDate/ExpiredDate if not bound/changed by the form
+            if (model.IssueDate == default) model.IssueDate = existing.IssueDate;
+            if (model.ExpiredDate == default) model.ExpiredDate = existing.ExpiredDate;
 
             if (ModelState.IsValid)
             {
@@ -131,6 +159,16 @@ namespace NICProductionWebIS.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.Genders = Enum.GetValues<Gender>()
+                .Cast<Gender>()
+                .Select(g => new SelectListItem
+                {
+                    Value = g.ToString(),
+                    Text = g.ToString().StartsWith("M") ? "Masculin" : "Feminin"
+                })
+                .ToList();
+
             return View(model);
         }
 
@@ -140,7 +178,9 @@ namespace NICProductionWebIS.Controllers
             if (id == null) return NotFound();
             var nic = await _context.NicTable.FindAsync(id);
             if (nic == null) return NotFound();
-            return View(nic);
+            _context.NicTable.Remove(nic);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Nic/Delete/5

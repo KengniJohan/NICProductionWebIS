@@ -1,0 +1,60 @@
+@* Shared image preview modal + JS to activate clickable-photo elements *@
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="imagePreviewTitle" class="modal-title">Aperçu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="imagePreviewImg" src="" alt="Aperçu" class="img-fluid" style="max-height:70vh; object-fit:contain;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            // Open modal by src/name or element
+            window.openImageModal = function (src, name) {
+                if (!src) return;
+                const img = document.getElementById('imagePreviewImg');
+                const title = document.getElementById('imagePreviewTitle');
+                img.src = src;
+                title.textContent = name || 'Aperçu';
+                const modalEl = document.getElementById('imagePreviewModal');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            };
+
+            window.openImageModalFromElement = function (el) {
+                const src = el.dataset && el.dataset.src;
+                const name = el.dataset && el.dataset.name;
+                openImageModal(src, name);
+            };
+
+            // attach listeners after DOM ready
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.clickable-photo').forEach(function (el) {
+                    // make keyboard navigable
+                    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+                    // click handler
+                    el.addEventListener('click', function () { openImageModalFromElement(el); });
+                    // keyboard handler (Enter / Space)
+                    el.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            openImageModalFromElement(el);
+                        }
+                    });
+                });
+            });
+        })();
+    </script>
+
+    <style>
+        .clickable-photo { cursor: pointer; }
+        .clickable-photo:focus { outline: 3px solid rgba(0,123,255,0.25); outline-offset: 2px; border-radius: 4px; }
+    </style>
+}

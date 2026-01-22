@@ -2,12 +2,16 @@
 
 @if (Model != null && Model.Length > 0)
 {
-    string base64 = Convert.ToBase64String(Model);
-    string imgSrc = $"data:image/png;base64,{base64}";
-
-    <img src="@imgSrc" style="width:120px;height:auto;border-radius:5px;border:1px solid #ccc;" />
+    var base64 = Convert.ToBase64String(Model);
+    var imgSrc = $"data:image/png;base64,{base64}";
+    <img src="@imgSrc"
+         class="img-thumbnail clickable-photo"
+         style="max-width:150px;max-height:150px;border:1px solid #e1e1e1;object-fit:cover;"
+         alt="Photo"
+         data-src="@imgSrc"
+         data-name="Photo" />
 }
 else
 {
-    <span>Aucune photo</span>
+    <div class="text-muted small">Aucune photo</div>
 }

@@ -11,28 +11,28 @@ namespace NICProductionWebIS.Models
         [Column("id")]
         public int Id { get; set; }
 
-        [Required, Column("name")]
+        [Required, Column("name"), MaxLength(50)]
         public required string Name { get; set; }
 
-        [Required, Column("surname")]
+        [Required, Column("surname"), MaxLength(50)]
         public required string Surname { get; set; }
 
-        [Required, Column("bornPlace")]
+        [Required, Column("bornPlace"), MaxLength(50)]
         public required string BornPlace { get; set; }
 
         [Required, DataType(DataType.Date), Column( "bornDate", TypeName="date")]
         public DateTime BornDate { get; set; }
 
-        [Required, Column( "profession")]
+        [Required, Column( "profession"), MaxLength(50)]
         public required string Profession { get; set; }
 
         [Column( "gender")]
         public Gender Gender { get; set; }
 
-        [Column("fatherName")]
+        [Column("fatherName"), MaxLength(100)]
         public string? FatherName { get; set; }
 
-        [Column( "motherName")]
+        [Column( "motherName"), MaxLength(100)]
         public string? MotherName { get; set; }
 
         [Required, Column( "height")]

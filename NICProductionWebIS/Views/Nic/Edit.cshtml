@@ -4,79 +4,143 @@
     ViewData["Title"] = "Modifier";
 }
 
-<h2>Modifier la Carte</h2>
+<div class="container py-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="card-title mb-0">Modifier la Carte</h3>
+                <a class="btn btn-outline-secondary btn-icon" asp-action="Index" title="Retour" aria-label="Retour">
+                    <!-- Back icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H3.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L3.707 7.5H14.5A.5.5 0 0 1 15 8z"/>
+                    </svg>
+                    <span class="visually-hidden">Retour</span>
+                </a>
+            </div>
 
-<form asp-action="Edit" enctype="multipart/form-data">
-    <input type="hidden" asp-for="Id" />
-    <input asp-for="IssueDate" class="form-control" type="hidden" />
-    <input asp-for="ExpiredDate" class="form-control" type="hidden" />
+            <form asp-action="Edit" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input asp-for="IssueDate" type="hidden" />
+                <input asp-for="ExpiredDate" type="hidden" />
 
-    <div class="form-group">
-        <label>Nom</label>
-        <input asp-for="Name" class="form-control" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label">Nom</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Surname" class="form-label">Prénom</label>
+                        <input asp-for="Surname" class="form-control" />
+                        <span asp-validation-for="Surname" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="FatherName" class="form-label">Nom du père</label>
+                        <input asp-for="FatherName" class="form-control" />
+                        <span asp-validation-for="FatherName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="MotherName" class="form-label">Nom de la mère</label>
+                        <input asp-for="MotherName" class="form-control" />
+                        <span asp-validation-for="MotherName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Height" class="form-label">Taille</label>
+                        <input asp-for="Height" class="form-control" type="number" min="0" />
+                        <span asp-validation-for="Height" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label asp-for="BornPlace" class="form-label">Lieu de naissance</label>
+                        <input asp-for="BornPlace" class="form-control" />
+                        <span asp-validation-for="BornPlace" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="BornDate" class="form-label">Date de naissance</label>
+                        <input asp-for="BornDate" class="form-control" type="date" />
+                        <span asp-validation-for="BornDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Profession" class="form-label">Profession</label>
+                        <input asp-for="Profession" class="form-control" />
+                        <span asp-validation-for="Profession" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Gender" class="form-label">Genre</label>
+                        <select asp-for="Gender" class="form-select" asp-items="@(ViewBag.Genders)"></select>
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 text-center">
+                        <label class="form-label">Photo actuelle</label>
+                        <div>
+                            @if (Model.Photo != null && Model.Photo.Length > 0)
+                            {
+                                var base64 = Convert.ToBase64String(Model.Photo);
+                                var src = $"data:image/png;base64,{base64}";
+                                <img src="@src"
+                                     class="img-thumbnail clickable-photo"
+                                     style="max-width:150px;max-height:150px;border:1px solid #e1e1e1;object-fit:cover;"
+                                     alt="Photo de @Model.Name @Model.Surname"
+                                     data-src="@src"
+                                     data-name="@Model.Name @Model.Surname" />
+                            }
+                            else
+                            {
+                                <div class="text-muted small">Aucune photo</div>
+                            }
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" value="true" id="removePhoto" name="removePhoto" />
+                            <label class="form-check-label" for="removePhoto">Supprimer la photo actuelle</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Nouvelle photo (optionnel)</label>
+                        <input id="photoFile" type="file" name="PhotoFile" class="form-control" accept="image/*" />
+                        <div id="photoPreview" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-warning">Enregistrer</button>
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Retour</a>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label>Prénom</label>
-        <input asp-for="Surname" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Nom du père</label>
-        <input asp-for="FatherName" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Nom de la mère</label>
-        <input asp-for="MotherName" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Taille</label>
-        <input asp-for="Height" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Lieu de naissance</label>
-        <input asp-for="BornPlace" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Date de naissance</label>
-        <input asp-for="BornDate" class="form-control" type="date" />
-    </div>
-
-    <div class="form-group">
-        <label>Profession</label>
-        <input asp-for="Profession" class="form-control" />
-    </div>
-
-    @* <div class="form-group">
-        <label>Date d’émission</label>
-        <input asp-for="IssueDate" class="form-control" type="date" />
-    </div>
-
-    <div class="form-group">
-        <label>Date d’expiration</label>
-        <input asp-for="ExpiredDate"  class="form-control" type="date" />
-    </div> *@
-
-    <div class="form-group">
-        <label>Genre</label>
-        <select asp-for="Gender" class="form-control"
-                asp-items="@(ViewBag.Genders)">
-        </select>
-        <span asp-validation-for="Gender" class="text-danger"></span>
-    </div>
-
-    <h5>Photo actuelle :</h5>
-    @await Html.PartialAsync("_PhotoPreview", Model.Photo)
-
-    <div class="form-group mt-3">
-        <label>Nouvelle photo (optionnel)</label>
-        <input type="file" name="PhotoFile" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-warning mt-3">Enregistrer</button>
-    <a asp-action="Index" class="btn btn-secondary mt-3">Retour</a>
-</form>
+@section Scripts {
+    <script>
+        const fileInput = document.getElementById('photoFile');
+        if (fileInput) {
+            fileInput.addEventListener('change', function (e) {
+                const preview = document.getElementById('photoPreview');
+                preview.innerHTML = '';
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.className = 'img-thumbnail';
+                    img.style.maxHeight = '180px';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+}
